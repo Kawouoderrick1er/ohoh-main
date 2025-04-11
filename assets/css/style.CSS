@@ -1,0 +1,567 @@
+/* c:\xampp\htdocs\ohoh\assets\css\style.css */
+
+/* Styles Généraux */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+    background-color: #f8f9fa; /* Fond général légèrement gris */
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Assure que le footer reste en bas */
+}
+
+main {
+    flex: 1; /* Permet au contenu principal de prendre l'espace disponible */
+    padding-top: 2rem; /* Espace après la navbar */
+    padding-bottom: 3rem; /* Espace avant le footer */
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: #343a40; /* Titres plus foncés */
+}
+
+/* Navbar */
+.navbar-custom {
+    background-color: #fff; /* Fond blanc */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Ombre légère */
+    padding-top: 0.8rem;
+    padding-bottom: 0.8rem;
+    transition: background-color 0.3s ease;
+}
+.navbar-custom .navbar-brand {
+    color: #343a40;
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+.navbar-custom .navbar-brand img {
+    height: 40px;
+    margin-right: 10px;
+    vertical-align: middle;
+}
+.navbar-custom .navbar-nav .nav-link {
+    color: #495057;
+    margin: 0 10px;
+    font-weight: 500;
+    transition: color 0.3s ease;
+    position: relative; /* Pour le pseudo-élément */
+    padding-bottom: 5px; /* Espace pour le soulignement */
+}
+.navbar-custom .navbar-nav .nav-link::after { /* Soulignement subtil */
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 2px;
+    background-color: #007bff;
+    transition: width 0.3s ease;
+}
+.navbar-custom .navbar-nav .nav-link:hover,
+.navbar-custom .navbar-nav .nav-link.active {
+    color: #007bff;
+}
+.navbar-custom .navbar-nav .nav-link:hover::after,
+.navbar-custom .navbar-nav .nav-link.active::after {
+    width: 60%; /* Largeur du soulignement au survol/actif */
+}
+
+/* Barre de recherche (optionnelle, peut être masquée si non utilisée) */
+.navbar-custom .search-bar {
+    position: relative;
+}
+.navbar-custom .search-bar input[type="search"] {
+    border-radius: 20px;
+    padding: 8px 15px 8px 40px;
+    border: 1px solid #ced4da;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    min-width: 200px;
+}
+.navbar-custom .search-bar input[type="search"]:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    outline: none;
+}
+.navbar-custom .search-bar .fa-search {
+    position: absolute;
+    top: 50%;
+    left: 15px;
+    transform: translateY(-50%);
+    color: #adb5bd;
+}
+
+/* Boutons d'authentification */
+.navbar-custom .auth-buttons .btn {
+    margin-left: 10px;
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-weight: 500;
+    transition: all 0.3s ease-in-out;
+}
+.navbar-custom .auth-buttons .btn-primary {
+     background-color: #007bff;
+     border-color: #007bff;
+     color: white;
+}
+ .navbar-custom .auth-buttons .btn-primary:hover {
+     background-color: #0056b3;
+     border-color: #0056b3;
+     transform: translateY(-2px);
+ }
+ .navbar-custom .auth-buttons .btn-outline-secondary {
+     color: #6c757d;
+     border-color: #6c757d;
+ }
+ .navbar-custom .auth-buttons .btn-outline-secondary:hover {
+     background-color: #6c757d;
+     color: white;
+     transform: translateY(-2px);
+ }
+
+/* Conteneurs de formulaire (Inscription, Connexion, Contact) */
+.form-container {
+    max-width: 550px; /* Légèrement plus large */
+    margin: 2rem auto; /* Moins de marge en haut/bas */
+    padding: 2.5rem; /* Plus de padding interne */
+    background-color: #fff;
+    border-radius: 10px; /* Plus arrondi */
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    border-top: 4px solid #007bff; /* Bordure colorée en haut */
+}
+.form-container h2 {
+    text-align: center;
+    color: #343a40;
+    margin-bottom: 2rem; /* Plus d'espace sous le titre */
+    font-weight: bold;
+}
+.form-label .text-danger { font-size: 0.9em; margin-left: 2px; }
+.form-container .form-control:focus { /* Effet focus amélioré */
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+.form-container .btn-primary { /* Bouton principal plus large */
+    padding: 0.75rem 1.25rem;
+    font-size: 1.1rem;
+}
+
+/* Footer */
+.main-footer {
+    background-color: #343a40; /* Fond sombre cohérent */
+    color: #adb5bd; /* Texte gris clair */
+    padding: 3rem 1rem 1rem 1rem; /* Plus de padding en haut */
+    font-size: 0.9rem;
+}
+.main-footer h3 {
+    color: #fff; /* Titres blancs */
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #495057; /* Ligne sous les titres */
+    padding-bottom: 0.5rem;
+}
+.main-footer ul {
+    list-style: none;
+    padding: 0;
+}
+.main-footer li {
+    margin-bottom: 0.5rem;
+}
+.main-footer a {
+    color: #adb5bd;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+.main-footer a:hover {
+    color: #fff; /* Blanc au survol */
+}
+.footer-bottom {
+    border-top: 1px solid #495057; /* Séparateur */
+    padding-top: 1rem;
+    margin-top: 2rem;
+    text-align: center;
+}
+.footer-bottom p {
+    margin-bottom: 0.5rem;
+}
+.social-links a {
+    color: #adb5bd;
+    margin: 0 0.5rem;
+    font-size: 1.2rem;
+    transition: color 0.3s ease;
+}
+.social-links a:hover {
+    color: #007bff; /* Bleu au survol */
+}
+
+/* Animations JS */
+.fade-in {
+    opacity: 0;
+    transition: opacity 0.8s ease-out;
+}
+/* La classe is-visible sera ajoutée par JS */
+.fade-in.is-visible {
+    opacity: 1;
+}
+
+.animate-on-scroll {
+    opacity: 0;
+    transform: translateY(40px); /* Commence un peu plus bas */
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+.animate-on-scroll.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Animation spécifique pour les formulaires */
+.form-group-animate {
+     opacity: 0;
+     transform: translateX(-20px); /* Arrive depuis la gauche */
+     transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+.form-group-animate.is-visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* Styles spécifiques aux pages (peuvent être ajoutés ici ou dans les <style> des pages) */
+
+/* --- Accueil (navbar.php) --- */
+.hero {
+    background: linear-gradient(to right, rgba(106, 17, 203, 0.85), rgba(37, 117, 252, 0.85)), url('../Images/hero-background.jpg') no-repeat center center; /* Chemin relatif */
+    background-size: cover;
+    color: white;
+    text-align: left;
+    padding: 6rem 1rem 8rem 1rem; /* Plus de padding bas pour espace */
+    position: relative;
+    overflow: hidden;
+}
+.hero h1 {
+    font-size: 3rem;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+    color: white; /* Assurer couleur blanche */
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+}
+.hero p {
+    font-size: 1.25rem;
+    margin-bottom: 2rem;
+    max-width: 600px;
+}
+.hero img.hero-image { /* Classe spécifique pour l'image du héros */
+     max-width: 100%;
+     height: auto;
+     border-radius: 10px; /* Coins arrondis */
+     box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+.hero .btn {
+    padding: 0.8rem 1.8rem;
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin-right: 1rem;
+    margin-bottom: 1rem; /* Pour mobile */
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.hero .btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+.section-padding {
+    padding: 4rem 0;
+}
+.section-title {
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 3rem;
+    font-size: 2.2rem;
+    position: relative;
+    padding-bottom: 0.8rem;
+}
+.section-title::after { /* Ligne décorative */
+    content: '';
+    display: block;
+    width: 70px;
+    height: 4px;
+    background-color: #007bff;
+    margin: 0.8rem auto 0;
+    border-radius: 2px;
+}
+.feature-card { /* Pour remplacer les anciennes cartes services/formations */
+    background-color: #fff;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%;
+}
+.feature-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+.feature-icon {
+    font-size: 3rem;
+    color: #007bff;
+    margin-bottom: 1rem;
+}
+.feature-card h3 {
+    font-size: 1.3rem;
+    margin-bottom: 0.8rem;
+}
+
+/* --- Services (formation.php) --- */
+.page-header {
+    background: linear-gradient(to right, rgba(0, 123, 255, 0.8), rgba(0, 86, 179, 0.8)), url('../Images/background-services.jpg') no-repeat center center; /* Chemin relatif */
+    background-size: cover;
+    color: white;
+    padding: 5rem 1rem; /* Plus de padding */
+    text-align: center;
+    margin-bottom: 3rem;
+    border-radius: 0 0 15px 15px;
+}
+.page-header h1 {
+    font-weight: bold;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.4);
+    color: white;
+}
+.formation-card { /* Style pour les cartes de formation */
+    border: none;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    border-radius: 8px;
+    overflow: hidden; /* Pour l'image */
+}
+.formation-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+.formation-card .card-img-top {
+    height: 220px; /* Légèrement plus haut */
+    object-fit: cover;
+    background-color: #e9ecef;
+}
+.formation-card .card-body {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 1.25rem;
+}
+ .formation-card .card-title {
+    color: #343a40;
+    font-weight: bold;
+    margin-bottom: 0.75rem;
+ }
+ .formation-card .card-text {
+     flex-grow: 1;
+     color: #6c757d;
+     margin-bottom: 1rem;
+ }
+ .formation-card .card-footer {
+     background-color: #f8f9fa; /* Fond léger pour le footer */
+     border-top: 1px solid #e9ecef;
+     padding: 0.75rem 1.25rem;
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+ }
+ .card-footer small {
+     color: #6c757d;
+ }
+ .formation-card .btn-primary {
+     padding: 0.3rem 0.8rem; /* Bouton plus petit */
+     font-size: 0.9rem;
+ }
+
+/* --- Contact (contact.php) --- */
+.contact-section {
+    padding: 4rem 0;
+}
+.contact-form-container {
+    background-color: #fff;
+    padding: 2.5rem;
+    border-radius: 8px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    border-top: 4px solid #28a745; /* Vert pour contact */
+}
+.contact-info {
+    background-color: #343a40; /* Fond sombre pour infos */
+    color: #e9ecef; /* Texte clair */
+    padding: 2.5rem;
+    border-radius: 8px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.contact-info h3 {
+    margin-bottom: 1.5rem;
+    color: #fff;
+}
+.contact-info p {
+    margin-bottom: 1rem;
+    line-height: 1.7; /* Plus d'espacement */
+}
+.contact-info i {
+    margin-right: 12px;
+    width: 20px;
+    color: #007bff; /* Icônes bleues */
+}
+.contact-info hr {
+    border-color: #495057; /* Séparateur plus sombre */
+}
+.contact-info .social-links a {
+    color: #e9ecef;
+}
+.contact-info .social-links a:hover {
+    color: #007bff;
+}
+.contact-form-container h2 {
+    color: #343a40;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    font-weight: bold;
+}
+
+/* --- A Propos (A_propos.php) --- */
+.about-header {
+    background: linear-gradient(to right, rgba(106, 17, 203, 0.8), rgba(37, 117, 252, 0.8)), url('../Images/background-placeholder.jpg') no-repeat center center; /* Chemin relatif */
+    background-size: cover;
+    color: white;
+    padding: 5rem 1rem;
+    text-align: center;
+    margin-bottom: 3rem;
+    border-radius: 0 0 15px 15px;
+}
+.about-header h1 {
+    font-size: 3rem;
+    font-weight: bold;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+    color: white;
+}
+.about-section {
+    padding: 3rem 0;
+}
+.about-section h2 {
+    color: #343a40;
+    margin-bottom: 2rem;
+    font-weight: bold;
+    text-align: center;
+    position: relative;
+    padding-bottom: 0.8rem;
+}
+.about-section h2::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 4px;
+    background-color: #007bff;
+    margin: 0.8rem auto 0;
+    border-radius: 2px;
+}
+.about-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1.5rem;
+}
+.team-section {
+    background-color: #ffffff;
+     border-radius: 8px;
+     padding: 3rem 1rem;
+     box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+.team-member img {
+    width: 160px; /* Légèrement plus grand */
+    height: 160px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-bottom: 1rem;
+    border: 4px solid #007bff; /* Bordure plus épaisse */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease;
+}
+.team-member img:hover {
+    transform: scale(1.05);
+}
+.team-member h5 {
+    margin-bottom: 0.25rem;
+    color: #343a40;
+    font-weight: bold;
+}
+.team-member p {
+    color: #6c757d;
+    font-style: italic;
+}
+.values-section .card {
+    border: none;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%;
+    border-radius: 8px;
+}
+.values-section .card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+.values-section .card-icon {
+    font-size: 3rem; /* Icône plus grande */
+    color: #007bff;
+    margin-bottom: 1.5rem;
+}
+.values-section .card-title {
+    color: #343a40;
+    font-weight: bold;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 991px) {
+    .navbar-custom .search-bar, .navbar-custom .auth-buttons {
+        margin-top: 10px;
+        margin-left: 0;
+        width: 100%;
+        text-align: center;
+    }
+     .navbar-custom .search-bar input[type="search"] {
+        width: 90%;
+        margin: 0 auto;
+    }
+    .navbar-custom .auth-buttons .btn {
+        display: block;
+        width: 80%;
+        margin: 10px auto;
+    }
+    .hero {
+        text-align: center;
+        padding: 4rem 1rem 6rem 1rem;
+    }
+    .hero h1 {
+        font-size: 2.5rem;
+    }
+    .hero p {
+        font-size: 1.1rem;
+    }
+    .hero img.hero-image {
+        margin-top: 2rem;
+    }
+    .contact-info {
+        margin-bottom: 2rem;
+    }
+}
+
+@media (max-width: 767px) {
+    .section-title {
+        font-size: 1.8rem;
+    }
+    .hero h1 {
+        font-size: 2.2rem;
+    }
+    .about-header h1 {
+        font-size: 2.2rem;
+    }
+    .page-header h1 {
+         font-size: 2.2rem;
+    }
+}
