@@ -1,4 +1,4 @@
-<?php // c:\xampp\htdocs\ohoh-main\admin_dashboard.php
+<?php // c:\xampp\htdocs\ohoh-main\admin_dashboard.php (MODIFIED Sidebar Link)
 session_start(); // Très important pour la sécurité !
 
 // --- Vérification de Sécurité Essentielle ---
@@ -47,14 +47,14 @@ $admin_name = $_SESSION['admin_name'] ?? 'Admin'; // Utiliser le nom de l'admin 
              <a href="#" data-url="gestion_generique.php?table=formateurs" onclick="loadContent(this, event)">
                 <i class="fas fa-chalkboard-teacher fa-fw"></i>Formateurs
             </a>
-            <a href="#" data-url="gestion_generique.php?table=cours" onclick="loadContent(this, event)">
-                <i class="fas fa-book-open fa-fw"></i>Cours
+            <a href="#" data-url="gestion_generique.php?table=formations" onclick="loadContent(this, event)"> <!-- MODIFIED table=formations -->
+                <i class="fas fa-graduation-cap fa-fw"></i>Formations <!-- MODIFIED icon and text -->
             </a>
-            <a href="#" data-url="gestion_generique.php?table=lecons" onclick="loadContent(this, event)">
-                <i class="fas fa-tasks fa-fw"></i>Leçons
-            </a>
+            <!-- <a href="#" data-url="gestion_generique.php?table=lecons" onclick="loadContent(this, event)"> -->
+                <!-- <i class="fas fa-tasks fa-fw"></i>Leçons --> <!-- REMOVED -->
+            <!-- </a> -->
              <a href="#" data-url="gestion_generique.php?table=inscriptions" onclick="loadContent(this, event)">
-                <i class="fas fa-user-check fa-fw"></i>Inscriptions
+                <i class="fas fa-user-check fa-fw"></i>Inscriptions/Accès <!-- MODIFIED text -->
             </a>
 
              <hr class="text-secondary opacity-50 my-2">
@@ -84,7 +84,7 @@ $admin_name = $_SESSION['admin_name'] ?? 'Admin'; // Utiliser le nom de l'admin 
     <div class="content">
         <div id="content-area" class="content-area">
             <!-- Contenu chargé dynamiquement ici -->
-            <div class="loading-indicator"><i class="fas fa-spinner"></i> Chargement initial...</div>
+            <div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> Chargement initial...</div>
         </div>
     </div>
 

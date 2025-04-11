@@ -121,3 +121,34 @@ CREATE TABLE messages_contact (
     ip_adresse VARCHAR(45) NULL, -- Optionnel: stocker l'IP pour référence
     user_agent TEXT NULL       -- Optionnel: stocker le navigateur
 );
+
+
+-- Rename the 'cours' table to 'formations' (Optional but recommended for clarity)
+-- RENAME TABLE cours TO formations;
+-- If you renamed the table, update ALL references in the PHP code from 'cours' to 'formations'.
+-- For this example, I will keep the table name 'cours' but change display names.
+
+-- Add 'prix' and 'logo_path' columns to the 'cours' table
+ALTER TABLE `cours`
+ADD COLUMN `prix` DECIMAL(10, 2) NOT NULL DEFAULT 0.00 AFTER `formateur_id`,
+ADD COLUMN `logo_path` VARCHAR(255) NULL DEFAULT NULL AFTER `prix`;
+
+-- Modify the 'inscriptions' table to store payment info and allow NULL user_id
+-- Ensure utilisateur_id can be NULL if the user isn't registered/logged in
+ALTER TABLE `inscriptions`
+MODIFY COLUMN `utilisateur_id` INT(11) NULL DEFAULT NULL,
+ADD COLUMN `email_client` VARCHAR(255) NULL DEFAULT NULL AFTER `cours_id`, -- Store email used for payment
+ADD COLUMN `montant_paye` DECIMAL(10, 2) NULL DEFAULT NULL AFTER `email_client`,
+ADD COLUMN `moyen_paiement` VARCHAR(50) NULL DEFAULT NULL AFTER `montant_paye`, -- e.g., 'MTN', 'Orange'
+ADD COLUMN `numero_telephone_paiement` VARCHAR(20) NULL DEFAULT NULL AFTER `moyen_paiement`,
+ADD COLUMN `access_code_envoye` VARCHAR(50) NULL DEFAULT NULL AFTER `numero_telephone_paiement`; -- Store the code sent
+
+-- Remove old/unused columns if they exist from the previous 'formations.php' logic
+-- ALTER TABLE `inscriptions` DROP COLUMN `formation`; -- If you had this text column
+-- ALTER TABLE `inscriptions` DROP COLUMN `telephone`; -- If you had this (replaced by numero_telephone_paiement)
+-- ALTER TABLE `inscriptions` DROP COLUMN `montant`; -- If you had this (replaced by montant_paye)
+
+-- Make date_inscription default to current timestamp automatically
+ALTER TABLE `inscriptions`
+MODIFY COLUMN `date_inscription` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;
+

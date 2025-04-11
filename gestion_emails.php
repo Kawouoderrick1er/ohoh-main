@@ -106,7 +106,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['send_email'])) {
     <div class="mb-3">
         <label for="body" class="form-label">Corps de l'email <span class="text-danger">*</span></label>
         <textarea class="form-control" id="body" name="body" rows="10" placeholder="Écrivez votre message ici..." required><?php echo isset($_POST['body']) ? htmlspecialchars($_POST['body']) : ''; ?></textarea>
-        <div class="form-text">Les sauts de ligne seront convertis en &lt;br&gt;.</div>
+        <!-- <div class="form-text">Les sauts de ligne seront convertis en &lt;<br> ;.</div> -->
+
     </div>
 
     <button type="submit" name="send_email" class="btn btn-primary">

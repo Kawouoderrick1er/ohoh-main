@@ -1,4 +1,4 @@
-<?php // c:\xampp\htdocs\ohoh-main\gestion_generique.php (Commentaires visibles retirés)
+<?php // c:\xampp\htdocs\ohoh-main\gestion_generique.php (MODIFIED)
 session_start();
 
 // --- Sécurité ---
@@ -45,26 +45,24 @@ $config_tables = [
         ],
         'list_condition' => "type_utilisateur = 'administrateur'", 'insert_values' => ['type_utilisateur' => 'administrateur'], 'default_sort' => 'date_inscription DESC'
     ],
-    'cours' => [
-        'table_name' => 'cours', 'display_name' => 'Formations / Cours', 'primary_key' => 'id',
+    // MODIFIED 'cours' to 'formations'
+    'formations' => [ // Renamed key for clarity, ensure admin_dashboard.php link uses this key
+        'table_name' => 'cours', // Still uses the 'cours' table in DB unless renamed
+        'display_name' => 'Formations', // Changed display name
+        'primary_key' => 'id',
         'columns' => [
             'titre' => ['label' => 'Titre', 'type' => 'text', 'required' => true],
             'description' => ['label' => 'Description', 'type' => 'textarea', 'required' => true],
-            'formateur_id' => ['label' => 'ID Formateur', 'type' => 'number'],
+            'formateur_id' => ['label' => 'ID Formateur', 'type' => 'number'], // Future: Could be a dropdown fetching from 'utilisateurs' where type='formateur'
+            'prix' => ['label' => 'Prix (€)', 'type' => 'number', 'step' => '0.01', 'required' => true, 'default' => 0.00], // ADDED
+            'logo_path' => ['label' => 'Chemin Logo', 'type' => 'text', 'required' => false, 'placeholder' => 'Images/logos/default.png'], // ADDED (Simple path for now)
             'statut' => ['label' => 'Statut', 'type' => 'select', 'options' => ['publié' => 'Publié', 'brouillon' => 'Brouillon', 'archivé' => 'Archivé'], 'required' => true, 'default' => 'brouillon'],
             'date_creation' => ['label' => 'Créé le', 'type' => 'datetime', 'readonly' => true],
+            // Consider adding 'contenu_formation' (textarea) or linking to a separate content management if needed
         ], 'default_sort' => 'date_creation DESC'
     ],
-    'lecons' => [
-        'table_name' => 'lecons', 'display_name' => 'Leçons', 'primary_key' => 'id',
-        'columns' => [
-            'titre' => ['label' => 'Titre', 'type' => 'text', 'required' => true],
-            'contenu' => ['label' => 'Contenu', 'type' => 'textarea', 'required' => true],
-            'cours_id' => ['label' => 'ID Cours Parent', 'type' => 'number', 'required' => true],
-            'statut' => ['label' => 'Statut', 'type' => 'select', 'options' => ['publié' => 'Publié', 'brouillon' => 'Brouillon', 'archivé' => 'Archivé'], 'required' => true, 'default' => 'brouillon'],
-            'date_creation' => ['label' => 'Créé le', 'type' => 'datetime', 'readonly' => true],
-        ], 'default_sort' => 'date_creation DESC'
-    ],
+    // REMOVED 'lecons' configuration
+    // 'lecons' => [ ... ],
     'messages_contact' => [
         'table_name' => 'messages_contact', 'display_name' => 'Messages de Contact', 'primary_key' => 'id',
         'columns' => [
@@ -76,13 +74,22 @@ $config_tables = [
             'statut' => ['label' => 'Statut', 'type' => 'select', 'options' => ['nouveau' => 'Nouveau', 'lu' => 'Lu', 'répondu' => 'Répondu', 'archivé' => 'Archivé'], 'required' => true, 'default' => 'nouveau'],
         ], 'default_sort' => 'date_reception DESC', 'can_delete' => true, 'can_add' => false,
     ],
-    'inscriptions' => [
-        'table_name' => 'inscriptions', 'display_name' => 'Inscriptions', 'primary_key' => 'id',
+    'inscriptions' => [ // Keep inscriptions to track who paid/accessed
+        'table_name' => 'inscriptions', 'display_name' => 'Inscriptions/Accès', 'primary_key' => 'id',
         'columns' => [
-            'utilisateur_id' => ['label' => 'ID Apprenant', 'type' => 'number', 'required' => true],
-            'cours_id' => ['label' => 'ID Cours', 'type' => 'number', 'required' => true],
-            'date_inscription' => ['label' => 'Date', 'type' => 'datetime', 'readonly' => true],
-        ], 'default_sort' => 'date_inscription DESC', 'can_delete' => true,
+            // Maybe fetch user name/email if utilisateur_id is not null
+            'utilisateur_id' => ['label' => 'ID Apprenant (si compte)', 'type' => 'number', 'readonly' => true],
+            'cours_id' => ['label' => 'ID Formation', 'type' => 'number', 'required' => true, 'readonly' => true], // Should fetch formation title
+            'email_client' => ['label' => 'Email Client', 'type' => 'email', 'readonly' => true], // ADDED
+            'montant_paye' => ['label' => 'Montant Payé (€)', 'type' => 'number', 'readonly' => true], // ADDED
+            'moyen_paiement' => ['label' => 'Moyen Paiement', 'type' => 'text', 'readonly' => true], // ADDED
+            'numero_telephone_paiement' => ['label' => 'Tél. Paiement', 'type' => 'tel', 'readonly' => true], // ADDED
+            'access_code_envoye' => ['label' => 'Code Envoyé', 'type' => 'text', 'readonly' => true], // ADDED
+            'date_inscription' => ['label' => 'Date Accès', 'type' => 'datetime', 'readonly' => true],
+        ],
+        'default_sort' => 'date_inscription DESC',
+        'can_delete' => true, // Allow revoking access?
+        'can_add' => false, // Access granted via payment flow, not manually here
     ],
 ];
 
@@ -119,6 +126,9 @@ if ($table_key && isset($config_tables[$table_key])) {
         $id = $_POST[$pk_name] ?? null;
         $result = ['success' => false, 'message' => 'Action non reconnue.']; // Résultat par défaut
 
+        // Pass $config_tables to CRUD functions if needed globally there
+        $GLOBALS['config_tables'] = $config_tables;
+
         if ($action === 'add' && isset($_POST['addData']) && $can_add) {
             $result = addItem($conn, $config, $_POST);
         } elseif ($action === 'edit' && isset($_POST['editData']) && $id) {
@@ -130,26 +140,30 @@ if ($table_key && isset($config_tables[$table_key])) {
 
         // Mettre à jour le message et le type basé sur le résultat des fonctions CRUD
         $message = $result['message'];
-        $message_type = $result['success'] ? 'success' : 'danger'; // Simplifié: succès ou danger
+        $message_type = $result['success'] ? 'success' : 'danger';
         if (!$result['success'] && strpos($result['message'], 'Aucune modification') !== false) {
-            $message_type = 'info'; // Cas spécifique pour "aucune modification"
+            $message_type = 'info';
         }
          if (!$result['success'] && strpos($result['message'], 'Aucune donnée valide') !== false) {
-            $message_type = 'warning'; // Cas spécifique pour "aucune donnée"
-        }
+            $message_type = 'warning';
+         }
          if (!$result['success'] && strpos($result['message'], 'trouvé ou supprimé') !== false) {
-            $message_type = 'warning'; // Cas spécifique pour "non trouvé"
-        }
+            $message_type = 'warning';
+         }
+         if (!$result['success'] && strpos($result['message'], 'Auto-suppression interdite') !== false) {
+             $message_type = 'danger';
+         }
 
 
     } // Fin du traitement POST
 
     // --- Récupération des données pour affichage via la fonction CRUD ---
+    // Pass $config_tables to fetchData if needed globally there
+    $GLOBALS['config_tables'] = $config_tables;
     $fetchResult = fetchData($conn, $config);
     if ($fetchResult['success']) {
         $data_list = $fetchResult['data'];
     } else {
-        // Si la récupération échoue après une action POST réussie, afficher quand même le message de succès
         if (empty($message) || $message_type !== 'success') {
              $message = $fetchResult['message'];
              $message_type = 'danger';
@@ -158,7 +172,6 @@ if ($table_key && isset($config_tables[$table_key])) {
     }
 
 } else {
-    // Gérer le cas où la table n'est pas valide ou non spécifiée
     if ($table_key) $message = "Config '$table_key' non trouvée.";
     else $message = "Section non spécifiée.";
     $message_type = 'warning';
@@ -169,12 +182,12 @@ if ($table_key && isset($config_tables[$table_key])) {
 
 <?php if ($config): ?>
     <?php
-        // Définir une icône par défaut ou spécifique à la table (logique inchangée)
+        // Définir une icône par défaut ou spécifique à la table
         $section_icon = 'fa-table';
         if ($table_key === 'apprenants') $section_icon = 'fa-users';
         elseif ($table_key === 'formateurs') $section_icon = 'fa-chalkboard-teacher';
-        elseif ($table_key === 'cours') $section_icon = 'fa-book-open';
-        elseif ($table_key === 'lecons') $section_icon = 'fa-tasks';
+        elseif ($table_key === 'formations') $section_icon = 'fa-graduation-cap'; // Changed icon
+        // elseif ($table_key === 'lecons') $section_icon = 'fa-tasks'; // Removed
         elseif ($table_key === 'inscriptions') $section_icon = 'fa-user-check';
         elseif ($table_key === 'messages_contact') $section_icon = 'fa-envelope-open-text';
         elseif ($table_key === 'administrateurs') $section_icon = 'fa-user-cog';
@@ -190,6 +203,9 @@ if ($table_key && isset($config_tables[$table_key])) {
              <?php endif; ?>
         </div>
 
+        <?php if ($table_key === 'formations'): ?>
+            <p class="intro-text">Gérez ici les formations proposées sur la plateforme.</p>
+        <?php endif; ?>
         <?php if ($table_key === 'apprenants'): ?>
             <p class="intro-text">Gérez ici la liste des étudiants inscrits sur la plateforme.</p>
         <?php endif; ?>
@@ -222,15 +238,17 @@ if ($table_key && isset($config_tables[$table_key])) {
                             </label>
                             <?php $input_type = $col_config['type'] ?? 'text'; ?>
                             <?php if ($input_type === 'textarea'): ?>
-                                <textarea class="form-control" id="add_<?php echo $col_name; ?>" name="<?php echo $col_name; ?>" rows="3" <?= ($col_config['required'] ?? false) ? 'required' : '' ?>><?php echo htmlspecialchars($col_config['default'] ?? ''); ?></textarea>
+                                <textarea class="form-control" id="add_<?php echo $col_name; ?>" name="<?php echo $col_name; ?>" rows="3" <?= ($col_config['required'] ?? false) ? 'required' : '' ?> placeholder="<?= htmlspecialchars($col_config['placeholder'] ?? '') ?>"><?php echo htmlspecialchars($col_config['default'] ?? ''); ?></textarea>
                             <?php elseif ($input_type === 'select'): ?>
                                 <select class="form-select" id="add_<?php echo $col_name; ?>" name="<?php echo $col_name; ?>" <?= ($col_config['required'] ?? false) ? 'required' : '' ?>>
                                     <?php foreach ($col_config['options'] as $value => $text): ?>
                                         <option value="<?= htmlspecialchars($value) ?>" <?= (isset($col_config['default']) && $col_config['default'] == $value) ? 'selected' : '' ?>><?= htmlspecialchars($text) ?></option>
                                     <?php endforeach; ?>
                                 </select>
+                             <?php elseif ($input_type === 'number'): ?>
+                                <input type="<?= htmlspecialchars($input_type) ?>" class="form-control" id="add_<?php echo $col_name; ?>" name="<?php echo $col_name; ?>" value="<?= htmlspecialchars($col_config['default'] ?? '') ?>" <?= ($col_config['required'] ?? false) ? 'required' : '' ?> step="<?= htmlspecialchars($col_config['step'] ?? 'any') ?>" placeholder="<?= htmlspecialchars($col_config['placeholder'] ?? '') ?>">
                             <?php else: ?>
-                                <input type="<?= htmlspecialchars($input_type) ?>" class="form-control" id="add_<?php echo $col_name; ?>" name="<?php echo $col_name; ?>" value="<?= htmlspecialchars($col_config['default'] ?? '') ?>" <?= ($col_config['required'] ?? false) ? 'required' : '' ?>>
+                                <input type="<?= htmlspecialchars($input_type) ?>" class="form-control" id="add_<?php echo $col_name; ?>" name="<?php echo $col_name; ?>" value="<?= htmlspecialchars($col_config['default'] ?? '') ?>" <?= ($col_config['required'] ?? false) ? 'required' : '' ?> placeholder="<?= htmlspecialchars($col_config['placeholder'] ?? '') ?>">
                             <?php endif; ?>
                         </div>
                     <?php endforeach; ?>
@@ -268,6 +286,8 @@ if ($table_key && isset($config_tables[$table_key])) {
                                             $cell_value = $row[$col_name] ?? '';
                                             if (($col_config['type'] ?? '') === 'select' && isset($col_config['options'][$cell_value])) {
                                                 echo htmlspecialchars($col_config['options'][$cell_value]);
+                                            } elseif (($col_config['type'] ?? '') === 'number' && isset($col_config['step']) && $col_config['step'] == '0.01') {
+                                                echo number_format((float)$cell_value, 2, ',', ' ') . ' €'; // Format price
                                             } elseif (strlen($cell_value) > 75 && ($col_config['type'] ?? 'text') === 'textarea') {
                                                 echo htmlspecialchars(substr($cell_value, 0, 75)) . '...';
                                             } else { echo htmlspecialchars($cell_value); }
@@ -276,11 +296,20 @@ if ($table_key && isset($config_tables[$table_key])) {
                                 <?php endforeach; ?>
                                 <td class='action-icons text-center'>
                                     <?php
+                                        // Prepare data for edit modal, excluding password
                                         $edit_data = array_filter($row, fn($key) => $key !== 'mot_de_passe', ARRAY_FILTER_USE_KEY);
                                     ?>
                                     <i class='fas fa-edit' title="Modifier" onclick='showEditModal(<?php echo json_encode($edit_data, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE); ?>, "<?php echo $pk_name; ?>")'></i>
                                     <?php if ($can_delete): ?>
-                                        <i class='fas fa-trash-alt' title="Supprimer" onclick='deleteItem(<?php echo json_encode($row[$pk_name]); ?>)'></i>
+                                        <?php
+                                            // Special check for admin self-delete prevention
+                                            $is_self_admin = ($table_key === 'administrateurs' && isset($_SESSION['admin_id']) && $row[$pk_name] == $_SESSION['admin_id']);
+                                        ?>
+                                        <?php if (!$is_self_admin): ?>
+                                            <i class='fas fa-trash-alt' title="Supprimer" onclick='deleteItem(<?php echo json_encode($row[$pk_name]); ?>)'></i>
+                                        <?php else: ?>
+                                            <i class='fas fa-trash-alt text-muted' title="Auto-suppression interdite"></i>
+                                        <?php endif; ?>
                                     <?php endif; ?>
                                 </td>
                             </tr>
@@ -290,6 +319,7 @@ if ($table_key && isset($config_tables[$table_key])) {
             </table>
         </div>
 
+        <!-- Modal Edit -->
         <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content shadow-lg">
@@ -314,15 +344,17 @@ if ($table_key && isset($config_tables[$table_key])) {
                                         </label>
                                         <?php $input_type = $col_config['type'] ?? 'text'; ?>
                                         <?php if ($input_type === 'textarea'): ?>
-                                            <textarea class="form-control" id="edit_<?php echo $col_name; ?>" name="<?php echo $col_name; ?>" rows="3" <?= $is_required ? 'required' : '' ?>></textarea>
+                                            <textarea class="form-control" id="edit_<?php echo $col_name; ?>" name="<?php echo $col_name; ?>" rows="3" <?= $is_required ? 'required' : '' ?> placeholder="<?= htmlspecialchars($col_config['placeholder'] ?? '') ?>"></textarea>
                                         <?php elseif ($input_type === 'select'): ?>
                                              <select class="form-select" id="edit_<?php echo $col_name; ?>" name="<?php echo $col_name; ?>" <?= $is_required ? 'required' : '' ?>>
                                                 <?php foreach ($col_config['options'] as $value => $text): ?>
                                                     <option value="<?= htmlspecialchars($value) ?>"><?= htmlspecialchars($text) ?></option>
                                                 <?php endforeach; ?>
                                             </select>
+                                        <?php elseif ($input_type === 'number'): ?>
+                                            <input type="<?= htmlspecialchars($input_type) ?>" class="form-control" id="edit_<?php echo $col_name; ?>" name="<?php echo $col_name; ?>" <?= $is_required ? 'required' : '' ?> step="<?= htmlspecialchars($col_config['step'] ?? 'any') ?>" placeholder="<?= htmlspecialchars($col_config['placeholder'] ?? '') ?>">
                                         <?php else: ?>
-                                            <input type="<?= htmlspecialchars($input_type) ?>" class="form-control" id="edit_<?php echo $col_name; ?>" name="<?php echo $col_name; ?>" <?= $is_required ? 'required' : '' ?>>
+                                            <input type="<?= htmlspecialchars($input_type) ?>" class="form-control" id="edit_<?php echo $col_name; ?>" name="<?php echo $col_name; ?>" <?= $is_required ? 'required' : '' ?> placeholder="<?= htmlspecialchars($col_config['placeholder'] ?? '') ?>">
                                         <?php endif; ?>
                                     </div>
                                 <?php endforeach; ?>

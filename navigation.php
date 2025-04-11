@@ -1,7 +1,7 @@
-<?php // c:\xampp\htdocs\ohoh\navigation.php
+<?php // c:\xampp\htdocs\ohoh\navigation.php (MODIFIED)
 // Démarrer la session si elle n'est pas déjà démarrée
 if (session_status() == PHP_SESSION_NONE) {
-    // session_start();
+    session_start(); // Start session to access user info if logged in
 }
 
 // Déterminer la page actuelle pour le lien actif
@@ -36,7 +36,8 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                         <a class="nav-link <?php echo ($currentPage == 'A_propos.php') ? 'active' : ''; ?>" href="A_propos.php">À Propos</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?php echo ($currentPage == 'formation.php') ? 'active' : ''; ?>" href="formation.php">Services</a>
+                        <!-- MODIFIED Link Text and potentially active check -->
+                        <a class="nav-link <?php echo ($currentPage == 'formation.php') ? 'active' : ''; ?>" href="formation.php">Formations</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link <?php echo ($currentPage == 'blog.php') ? 'active' : ''; ?>" href="#">Blog</a> <!-- Lien Blog (à créer) -->
@@ -56,12 +57,19 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                     <div class="auth-buttons">
                         <?php if (isset($_SESSION['user_id'])): ?>
                             <!-- Utilisateur connecté -->
-                            <a href="profile.php" class="btn btn-outline-secondary <?php echo ($currentPage == 'profile.php') ? 'active' : ''; ?>">
-                                <i class="fas fa-user me-1"></i> Profil (<?php echo htmlspecialchars($_SESSION['user_name'] ?? 'Utilisateur'); ?>)
-                            </a>
-                            <a href="logout.php" class="btn btn-danger">
-                                <i class="fas fa-sign-out-alt me-1"></i> Déconnexion
-                            </a>
+                            <div class="dropdown">
+                                <button class="btn btn-outline-secondary dropdown-toggle <?php echo ($currentPage == 'profile.php') ? 'active' : ''; ?>" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                                     <i class="fas fa-user me-1"></i> <?php echo htmlspecialchars($_SESSION['user_name'] ?? 'Utilisateur'); ?>
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                                    <li><a class="dropdown-item" href="profile.php">Mon Profil</a></li>
+                                    <?php if (isset($_SESSION['user_type']) && $_SESSION['user_type'] == 'administrateur'): ?>
+                                        <li><a class="dropdown-item" href="admin_dashboard.php" target="_blank">Dashboard Admin</a></li>
+                                    <?php endif; ?>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item text-danger" href="logout.php"><i class="fas fa-sign-out-alt me-1"></i> Déconnexion</a></li>
+                                </ul>
+                            </div>
                         <?php else: ?>
                             <!-- Utilisateur non connecté -->
                             <a href="inscription.php" class="btn btn-outline-secondary <?php echo ($currentPage == 'inscription.php') ? 'active' : ''; ?>">Inscription</a>
