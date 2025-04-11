@@ -3,11 +3,11 @@
 session_start();
 
 // --- Vérification de Sécurité Essentielle ---
-if (!isset($_SESSION['admin_id'])) {
-    http_response_code(403);
-    echo '<div class="alert alert-danger" role="alert"><strong>Accès refusé.</strong> Veuillez vous reconnecter.</div>';
-    exit();
-}
+// if (!isset($_SESSION['admin_id'])) {
+//     http_response_code(403);
+//     echo '<div class="alert alert-danger" role="alert"><strong>Accès refusé.</strong> Veuillez vous reconnecter.</div>';
+//     exit();
+// }
 
 // --- Inclusion de PHPMailer ---
 use PHPMailer\PHPMailer\PHPMailer;
@@ -89,9 +89,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['send_email'])) {
 <?php endif; ?>
 
 <!-- Avertissement important sur la configuration SMTP -->
-<div class="alert alert-warning" role="alert">
+<!-- <div class="alert alert-warning" role="alert">
     <i class="fas fa-exclamation-triangle me-2"></i> <strong>Attention :</strong> La configuration SMTP (Host, Username, Password, etc.) doit être correcte dans le code PHP. Utilisez un mot de passe d'application pour Gmail si la 2FA est activée.
-</div>
+</div> -->
 
 <!-- Formulaire d'envoi d'email -->
 <form action="gestion_emails.php" method="post" id="emailForm"> <!-- Donner un ID au formulaire si besoin de le cibler en JS -->
@@ -115,7 +115,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['send_email'])) {
 </form>
 
 <!-- Optionnel: Script JS spécifique à cette section -->
-<script>
+<!-- <script>
     // Si le formulaire doit être soumis via AJAX pour éviter le rechargement même partiel:
     
     document.getElementById('emailForm').addEventListener('submit', function(e) {
@@ -147,6 +147,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['send_email'])) {
         });
     });
    
-</script>
+</script> -->
 
 <?php // --- Fin de la sortie HTML pour #content-area --- ?>

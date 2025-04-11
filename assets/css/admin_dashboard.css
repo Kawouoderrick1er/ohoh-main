@@ -1,0 +1,295 @@
+/* c:\xampp\htdocs\ohoh-main\assets\css\admin_dashboard.css */
+
+/* Styles généraux */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+    margin: 0;
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 250px;
+    background-color: #343a40;
+    padding: 20px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    height: 100%;
+    top: 0;
+    left: 0;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+    z-index: 1030;
+}
+
+.sidebar .admin-info {
+    text-align: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #495057;
+}
+
+.sidebar .admin-info i {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    color: #adb5bd; /* Légère nuance pour l'icône admin */
+}
+
+.sidebar h2 {
+    font-size: 1.2rem;
+    margin-bottom: 0;
+}
+
+.sidebar .menu {
+    flex-grow: 1;
+}
+
+.sidebar a {
+    color: #adb5bd;
+    text-decoration: none;
+    display: block;
+    padding: 12px 15px;
+    margin-bottom: 8px;
+    border-radius: 5px;
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, transform 0.1s ease;
+}
+
+.sidebar a i {
+    margin-right: 12px; /* Un peu plus d'espace */
+    width: 20px;
+    text-align: center;
+}
+
+.sidebar a:hover {
+    background-color: #495057;
+    color: white;
+    transform: translateX(3px); /* Léger décalage au survol */
+}
+
+.sidebar a.active {
+    background-color: #0d6efd; /* Utiliser la couleur primaire Bootstrap pour l'actif */
+    color: white;
+    font-weight: 500;
+}
+
+.sidebar .logout-link {
+    margin-top: auto;
+    padding-top: 15px;
+    border-top: 1px solid #495057;
+}
+
+.sidebar .logout-link a {
+    background-color: transparent;
+    border: 1px solid #dc3545;
+    color: #dc3545;
+    text-align: center; /* Bouton déconnexion plus subtil */
+    display: block; /* Assurer que le padding s'applique */
+    padding: 10px 15px; /* Ajuster le padding */
+    border-radius: 5px;
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+.sidebar .logout-link a:hover {
+    background-color: #dc3545;
+    color: white;
+}
+
+.content {
+    margin-left: 250px;
+    padding: 30px;
+    flex-grow: 1;
+    background-color: #f8f9fa;
+}
+
+.content-area {
+    background-color: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Ombre plus douce */
+    min-height: calc(100vh - 60px);
+}
+
+.loading-indicator {
+    text-align: center;
+    padding: 50px;
+    font-size: 1.2rem;
+    color: #6c757d;
+}
+
+.loading-indicator i {
+    margin-right: 10px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.modal-backdrop { z-index: 1040 !important; }
+.modal { z-index: 1050 !important; }
+
+/* --- Styles pour une interface plus pro --- */
+
+
+
+/* Icônes dans les titres de section */
+/* Conteneur principal de section chargée */
+.gestion-section {
+    opacity: 0; /* Pour animation fade-in */
+    transform: translateY(15px); /* Pour animation slide-up */
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+.gestion-section.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Titres de section */
+.content-area h2 {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 1.5rem !important; /* Plus d'espace sous le titre principal */
+}
+.content-area h2 > i {
+    margin-right: 0.7rem;
+    color: #0d6efd; /* Icône de titre en couleur primaire */
+    font-size: 1.4rem;
+    vertical-align: -2px; /* Ajustement vertical */
+}
+.content-area h4 {
+    font-weight: 500;
+    color: #6c757d;
+    margin-top: 2rem; /* Espace avant les sous-titres (comme "Liste existante") */
+    margin-bottom: 1rem;
+}
+.content-area h4 > i {
+    margin-right: 0.5rem;
+    font-size: 1.1rem;
+    color: #6c757d;
+}
+
+
+/* Boutons */
+.btn {
+    padding: 0.5rem 1rem; /* Padding standard */
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+}
+.btn i {
+    margin-right: 0.4rem;
+    font-size: 0.9em;
+}
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+.btn-primary { /* Assurer la couleur */
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+.btn-primary:hover {
+    background-color: #0b5ed7;
+    border-color: #0a58ca;
+}
+/* ... (styles pour autres boutons: success, secondary, danger) ... */
+
+
+/* Icônes d'action dans les tables */
+.action-icons i {
+    cursor: pointer;
+    margin: 0 0.6rem; /* Un peu plus d'espace */
+    font-size: 1.1rem;
+    transition: color 0.2s ease-in-out, transform 0.2s ease;
+    color: #6c757d;
+}
+.action-icons i.fa-edit:hover { color: #0d6efd; transform: scale(1.15); }
+.action-icons i.fa-trash-alt:hover { color: #dc3545; transform: scale(1.15); }
+.action-icons i.fa-eye:hover { color: #0dcaf0; transform: scale(1.15); }
+
+/* Amélioration visuelle des tables */
+.table-responsive {
+    border-radius: 0.375rem;
+    overflow: hidden;
+    border: 1px solid #dee2e6; /* Bordure légère autour */
+}
+.table {
+    margin-bottom: 0; /* Enlever marge par défaut */
+}
+.table thead th {
+    background-color: #f8f9fa; /* Fond d'en-tête très clair */
+    border-bottom-width: 2px; /* Ligne inférieure plus marquée */
+    font-weight: 600;
+    color: #495057;
+    white-space: nowrap; /* Empêcher le retour à la ligne des titres */
+}
+.table-hover tbody tr:hover { background-color: #eef2f7; } /* Survol bleu très léger */
+.table td, .table th { vertical-align: middle; }
+.table td { color: #495057; } /* Couleur de texte standard */
+.table tbody tr:first-child td { border-top: none; }
+
+/* Amélioration des formulaires (Ajout et Email) */
+#addFormContainer,
+.gestion-emails form { /* Cible le formulaire dans la section email */
+    background-color: #ffffff;
+    padding: 2rem;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+#addFormContainer h4,
+.gestion-emails h3 { /* Si vous ajoutez un titre au form email */
+    margin-bottom: 1.5rem;
+    color: #495057;
+}
+#addFormContainer hr,
+.gestion-emails hr {
+    margin-top: 1rem;
+    margin-bottom: 1.5rem;
+}
+.form-label { font-weight: 500; color: #495057; }
+.form-control:focus, .form-select:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Modal */
+.modal-content { border-radius: 0.5rem; border: none; }
+.modal-header { background-color: #f8f9fa; border-bottom: 1px solid #dee2e6; }
+.modal-header .modal-title { font-weight: 600; }
+.modal-header .modal-title i { color: #0d6efd; margin-right: 0.5rem; }
+.modal-footer { border-top: 1px solid #dee2e6; }
+
+/* Alertes */
+.alert {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    border-radius: 0.375rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+.alert i {
+    margin-right: 0.8rem;
+    font-size: 1.3rem;
+    flex-shrink: 0;
+}
+.alert > div { flex-grow: 1; }
+
+/* Styles spécifiques (exemple pour apprenants) */
+.gestion-apprenants .table thead { background-color: #cfe2ff; color: #052c65; }
+.gestion-apprenants .intro-text { /* ... */ }
+
+/* Intro text générique */
+.intro-text {
+    font-style: italic;
+    color: #6c757d;
+    margin-bottom: 1.5rem;
+    border-left: 3px solid #adb5bd;
+    padding-left: 15px;
+    font-size: 0.95rem;
+}
+.gestion-apprenants .intro-text { border-left-color: #0d6efd; } /* Spécifique si besoin */

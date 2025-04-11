@@ -1,138 +1,96 @@
-<?php // c:\xampp\htdocs\ohoh-main\gestion_generique.php (MODIFIÉ POUR AJAX)
+<?php // c:\xampp\htdocs\ohoh-main\gestion_generique.php (Commentaires visibles retirés)
 session_start();
 
 // --- Sécurité ---
-// if (!isset($_SESSION['admin_id'])) {
-//     http_response_code(403);
-//     echo '<div class="alert alert-danger" role="alert"><strong>Accès refusé.</strong></div>';
-//     exit();
-// }
+// !! IMPORTANT: Décommentez cette section en production !!
+/*
+if (!isset($_SESSION['admin_id'])) {
+    http_response_code(403); // Forbidden
+    echo '<div class="alert alert-danger" role="alert"><i class="fas fa-exclamation-triangle me-2"></i><strong>Accès refusé.</strong> Veuillez vous reconnecter.</div>';
+    exit();
+}
+*/
 
 // --- Configuration des Tables ---
 $config_tables = [
     'apprenants' => [
-        'table_name' => 'utilisateurs',
-        'display_name' => 'Apprenants',
-        'primary_key' => 'id',
+        'table_name' => 'utilisateurs', 'display_name' => 'Apprenants', 'primary_key' => 'id',
         'columns' => [
             'nom' => ['label' => 'Nom', 'type' => 'text', 'required' => true],
             'email' => ['label' => 'Email', 'type' => 'email', 'required' => true],
-            'telephone' => ['label' => 'Téléphone', 'type' => 'tel', 'required' => false],
-            'adresse' => ['label' => 'Adresse', 'type' => 'textarea', 'required' => false],
+            'telephone' => ['label' => 'Téléphone', 'type' => 'tel'],
+            'adresse' => ['label' => 'Adresse', 'type' => 'textarea'],
             'date_inscription' => ['label' => 'Inscrit le', 'type' => 'datetime', 'readonly' => true],
         ],
-        'list_condition' => "type_utilisateur = 'etudiant'",
-        'insert_values' => ['type_utilisateur' => 'etudiant'],
-        'default_sort' => 'date_inscription DESC'
+        'list_condition' => "type_utilisateur = 'etudiant'", 'insert_values' => ['type_utilisateur' => 'etudiant'], 'default_sort' => 'date_inscription DESC'
     ],
-    // ... (vos autres configurations: formateurs, cours, etc.) ...
-     'formateurs' => [
-        'table_name' => 'utilisateurs',
-        'display_name' => 'Formateurs',
-        'primary_key' => 'id',
+    'formateurs' => [
+        'table_name' => 'utilisateurs', 'display_name' => 'Formateurs', 'primary_key' => 'id',
         'columns' => [
             'nom' => ['label' => 'Nom', 'type' => 'text', 'required' => true],
             'email' => ['label' => 'Email', 'type' => 'email', 'required' => true],
-            'telephone' => ['label' => 'Téléphone', 'type' => 'tel', 'required' => false],
-            'adresse' => ['label' => 'Adresse', 'type' => 'textarea', 'required' => false],
+            'telephone' => ['label' => 'Téléphone', 'type' => 'tel'],
+            'adresse' => ['label' => 'Adresse', 'type' => 'textarea'],
             'date_inscription' => ['label' => 'Inscrit le', 'type' => 'datetime', 'readonly' => true],
         ],
-        'list_condition' => "type_utilisateur = 'formateur'",
-        'insert_values' => ['type_utilisateur' => 'formateur'],
-        'default_sort' => 'date_inscription DESC'
+        'list_condition' => "type_utilisateur = 'formateur'", 'insert_values' => ['type_utilisateur' => 'formateur'], 'default_sort' => 'date_inscription DESC'
     ],
     'administrateurs' => [
-        'table_name' => 'utilisateurs',
-        'display_name' => 'Administrateurs',
-        'primary_key' => 'id',
+        'table_name' => 'utilisateurs', 'display_name' => 'Administrateurs', 'primary_key' => 'id',
         'columns' => [
             'nom' => ['label' => 'Nom', 'type' => 'text', 'required' => true],
             'email' => ['label' => 'Email', 'type' => 'email', 'required' => true],
             'mot_de_passe' => ['label' => 'Mot de passe', 'type' => 'password', 'required' => true, 'edit_optional' => true, 'no_list' => true],
             'date_inscription' => ['label' => 'Inscrit le', 'type' => 'datetime', 'readonly' => true],
         ],
-        'list_condition' => "type_utilisateur = 'administrateur'",
-        'insert_values' => ['type_utilisateur' => 'administrateur'],
-        'default_sort' => 'date_inscription DESC'
+        'list_condition' => "type_utilisateur = 'administrateur'", 'insert_values' => ['type_utilisateur' => 'administrateur'], 'default_sort' => 'date_inscription DESC'
     ],
     'cours' => [
-        'table_name' => 'cours',
-        'display_name' => 'Formations / Cours',
-        'primary_key' => 'id',
+        'table_name' => 'cours', 'display_name' => 'Formations / Cours', 'primary_key' => 'id',
         'columns' => [
             'titre' => ['label' => 'Titre', 'type' => 'text', 'required' => true],
             'description' => ['label' => 'Description', 'type' => 'textarea', 'required' => true],
-            'formateur_id' => ['label' => 'ID Formateur', 'type' => 'number', 'required' => false], // Amélioration: Dropdown
-            'statut' => [ // Ajout du statut
-                'label' => 'Statut',
-                'type' => 'select',
-                'options' => ['publié' => 'Publié', 'brouillon' => 'Brouillon', 'archivé' => 'Archivé'],
-                'required' => true,
-                'default' => 'brouillon'
-            ],
+            'formateur_id' => ['label' => 'ID Formateur', 'type' => 'number'],
+            'statut' => ['label' => 'Statut', 'type' => 'select', 'options' => ['publié' => 'Publié', 'brouillon' => 'Brouillon', 'archivé' => 'Archivé'], 'required' => true, 'default' => 'brouillon'],
             'date_creation' => ['label' => 'Créé le', 'type' => 'datetime', 'readonly' => true],
-        ],
-        'default_sort' => 'date_creation DESC'
+        ], 'default_sort' => 'date_creation DESC'
     ],
     'lecons' => [
-        'table_name' => 'lecons',
-        'display_name' => 'Leçons',
-        'primary_key' => 'id',
+        'table_name' => 'lecons', 'display_name' => 'Leçons', 'primary_key' => 'id',
         'columns' => [
             'titre' => ['label' => 'Titre', 'type' => 'text', 'required' => true],
             'contenu' => ['label' => 'Contenu', 'type' => 'textarea', 'required' => true],
-            'cours_id' => ['label' => 'ID Cours Parent', 'type' => 'number', 'required' => true], // Amélioration: Dropdown
-             'statut' => [ // Ajout du statut
-                'label' => 'Statut',
-                'type' => 'select',
-                'options' => ['publié' => 'Publié', 'brouillon' => 'Brouillon', 'archivé' => 'Archivé'],
-                'required' => true,
-                'default' => 'brouillon'
-            ],
+            'cours_id' => ['label' => 'ID Cours Parent', 'type' => 'number', 'required' => true],
+            'statut' => ['label' => 'Statut', 'type' => 'select', 'options' => ['publié' => 'Publié', 'brouillon' => 'Brouillon', 'archivé' => 'Archivé'], 'required' => true, 'default' => 'brouillon'],
             'date_creation' => ['label' => 'Créé le', 'type' => 'datetime', 'readonly' => true],
-        ],
-        'default_sort' => 'date_creation DESC'
+        ], 'default_sort' => 'date_creation DESC'
     ],
     'messages_contact' => [
-        'table_name' => 'messages_contact',
-        'display_name' => 'Messages de Contact',
-        'primary_key' => 'id',
+        'table_name' => 'messages_contact', 'display_name' => 'Messages de Contact', 'primary_key' => 'id',
         'columns' => [
             'nom' => ['label' => 'Nom', 'type' => 'text', 'readonly' => true],
             'email' => ['label' => 'Email', 'type' => 'email', 'readonly' => true],
             'sujet' => ['label' => 'Sujet', 'type' => 'text', 'readonly' => true],
-            'message' => ['label' => 'Message', 'type' => 'textarea', 'readonly' => true, 'no_list' => true], // Ne pas lister le message complet
+            'message' => ['label' => 'Message', 'type' => 'textarea', 'readonly' => true, 'no_list' => true],
             'date_reception' => ['label' => 'Reçu le', 'type' => 'datetime', 'readonly' => true],
-            'statut' => [
-                'label' => 'Statut',
-                'type' => 'select',
-                'options' => ['nouveau' => 'Nouveau', 'lu' => 'Lu', 'répondu' => 'Répondu', 'archivé' => 'Archivé'],
-                'required' => true,
-                'default' => 'nouveau'
-            ],
-        ],
-        'default_sort' => 'date_reception DESC',
-        'can_delete' => true, // Permettre la suppression
-        'can_add' => false, // Ne pas permettre l'ajout manuel via cette interface
+            'statut' => ['label' => 'Statut', 'type' => 'select', 'options' => ['nouveau' => 'Nouveau', 'lu' => 'Lu', 'répondu' => 'Répondu', 'archivé' => 'Archivé'], 'required' => true, 'default' => 'nouveau'],
+        ], 'default_sort' => 'date_reception DESC', 'can_delete' => true, 'can_add' => false,
     ],
     'inscriptions' => [
-        'table_name' => 'inscriptions',
-        'display_name' => 'Inscriptions aux Cours',
-        'primary_key' => 'id',
+        'table_name' => 'inscriptions', 'display_name' => 'Inscriptions', 'primary_key' => 'id',
         'columns' => [
-            'utilisateur_id' => ['label' => 'ID Apprenant', 'type' => 'number', 'required' => true], // Amélioration: Dropdown/Lookup
-            'cours_id' => ['label' => 'ID Cours', 'type' => 'number', 'required' => true], // Amélioration: Dropdown/Lookup
+            'utilisateur_id' => ['label' => 'ID Apprenant', 'type' => 'number', 'required' => true],
+            'cours_id' => ['label' => 'ID Cours', 'type' => 'number', 'required' => true],
             'date_inscription' => ['label' => 'Date', 'type' => 'datetime', 'readonly' => true],
-        ],
-        'default_sort' => 'date_inscription DESC',
-        'can_delete' => true, // Permettre la suppression
+        ], 'default_sort' => 'date_inscription DESC', 'can_delete' => true,
     ],
 ];
 
-// --- Connexion DB ---
+// --- Inclusion des dépendances ---
 require_once 'base.php'; // $conn
+require_once 'crud_operations.php'; // Inclure les fonctions CRUD
 
-// --- Logique Générique (Traitement POST, Récupération Données) ---
+// --- Initialisation des variables ---
 $message = '';
 $message_type = 'info';
 $table_key = $_GET['table'] ?? null;
@@ -142,128 +100,92 @@ $columns_to_display = [];
 $columns_for_form = [];
 $can_add = true;
 $can_delete = true;
-$pk_name = 'id'; // Valeur par défaut
+$pk_name = 'id';
 
+// --- Validation de la configuration ---
 if ($table_key && isset($config_tables[$table_key])) {
     $config = $config_tables[$table_key];
-    $table_name = $config['table_name'];
-    $pk_name = $config['primary_key']; // Récupérer le nom réel de la PK
+    $pk_name = $config['primary_key'];
     $can_add = $config['can_add'] ?? true;
     $can_delete = $config['can_delete'] ?? true;
 
+    // Filtrer les colonnes pour l'affichage et les formulaires
     $columns_to_display = array_filter($config['columns'], fn($col) => !($col['no_list'] ?? false));
     $columns_for_form = array_filter($config['columns'], fn($col) => !($col['readonly'] ?? false));
 
-    // --- Traitement POST (Ajout, Modif, Suppr) ---
+    // --- Traitement des Actions POST via les fonctions CRUD ---
     if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action'])) {
         $action = $_POST['action'];
         $id = $_POST[$pk_name] ?? null;
+        $result = ['success' => false, 'message' => 'Action non reconnue.']; // Résultat par défaut
 
-        try {
-            // Action: Ajouter
-            if ($action === 'add' && isset($_POST['addData']) && $can_add) {
-                 $sql_cols = []; $sql_placeholders = []; $bind_params = [];
-                 // Ajouter valeurs fixes
-                 if (isset($config['insert_values'])) {
-                     foreach ($config['insert_values'] as $col => $val) {
-                         $sql_cols[] = "`$col`"; $sql_placeholders[] = ":$col"; $bind_params[":$col"] = $val;
-                     }
-                 }
-                 // Ajouter valeurs du formulaire
-                 foreach ($columns_for_form as $col_name => $col_config) {
-                     if (isset($_POST[$col_name]) && !isset($bind_params[":$col_name"])) {
-                         $value = $_POST[$col_name];
-                         if ($col_name === 'mot_de_passe' && !empty($value)) {
-                             $value = password_hash($value, PASSWORD_DEFAULT);
-                         } elseif ($col_name === 'mot_de_passe') continue; // Ne pas insérer mdp vide si requis
-
-                         $sql_cols[] = "`$col_name`"; $sql_placeholders[] = ":$col_name";
-                         $bind_params[":$col_name"] = ($value === '' && !($col_config['required'] ?? false)) ? null : $value;
-                     } elseif (isset($col_config['default']) && !isset($bind_params[":$col_name"])) {
-                         $sql_cols[] = "`$col_name`"; $sql_placeholders[] = ":$col_name"; $bind_params[":$col_name"] = $col_config['default'];
-                     }
-                 }
-                 // Exécuter
-                 if (!empty($sql_cols)) {
-                     $sql = "INSERT INTO `$table_name` (" . implode(', ', $sql_cols) . ") VALUES (" . implode(', ', $sql_placeholders) . ")";
-                     $stmt = $conn->prepare($sql); $stmt->execute($bind_params);
-                     $message = htmlspecialchars($config['display_name']) . " ajouté(e)."; $message_type = 'success';
-                 } else { $message = "Aucune donnée à ajouter."; $message_type = 'warning'; }
-            }
-            // Action: Modifier
-            elseif ($action === 'edit' && isset($_POST['editData']) && $id) {
-                 $sql_updates = []; $bind_params = [];
-                 foreach ($columns_for_form as $col_name => $col_config) {
-                     if ($col_name === $pk_name || ($col_config['no_edit'] ?? false)) continue;
-                     if (isset($_POST[$col_name])) {
-                         $value = $_POST[$col_name];
-                         if ($col_name === 'mot_de_passe') {
-                             if (!empty($value)) { // MAJ seulement si fourni
-                                 $value = password_hash($value, PASSWORD_DEFAULT);
-                                 $sql_updates[] = "`$col_name` = :$col_name"; $bind_params[":$col_name"] = $value;
-                             }
-                         } else {
-                             $sql_updates[] = "`$col_name` = :$col_name";
-                             $bind_params[":$col_name"] = ($value === '' && !($col_config['required'] ?? false)) ? null : $value;
-                         }
-                     }
-                 }
-                 // Exécuter
-                 if (!empty($sql_updates)) {
-                     $bind_params[":$pk_name"] = $id;
-                     $sql = "UPDATE `$table_name` SET " . implode(', ', $sql_updates) . " WHERE `$pk_name` = :$pk_name";
-                     $stmt = $conn->prepare($sql); $stmt->execute($bind_params);
-                     $message = htmlspecialchars($config['display_name']) . " modifié(e)."; $message_type = 'success';
-                 } else { $message = "Aucune modification."; $message_type = 'info'; }
-            }
-            // Action: Supprimer
-            elseif ($action === 'delete' && isset($_POST['deleteData']) && $id && $can_delete) {
-                 if ($table_key === 'administrateurs' && $id == $_SESSION['admin_id']) {
-                     throw new Exception("Auto-suppression interdite.");
-                 }
-                 $sql = "DELETE FROM `$table_name` WHERE `$pk_name` = :$pk_name";
-                 $stmt = $conn->prepare($sql); $stmt->bindParam(":$pk_name", $id, PDO::PARAM_INT); $stmt->execute();
-                 if ($stmt->rowCount() > 0) {
-                     $message = htmlspecialchars($config['display_name']) . " supprimé(e)."; $message_type = 'success';
-                 } else { $message = "Élément non trouvé/supprimé."; $message_type = 'warning'; }
-            }
-        } catch (PDOException | Exception $e) {
-            $message = "Erreur: " . $e->getMessage(); $message_type = 'danger';
-            error_log("Erreur CRUD gestion_generique ($table_key): " . $e->getMessage());
+        if ($action === 'add' && isset($_POST['addData']) && $can_add) {
+            $result = addItem($conn, $config, $_POST);
+        } elseif ($action === 'edit' && isset($_POST['editData']) && $id) {
+            $result = editItem($conn, $config, $_POST, $id);
+        } elseif ($action === 'delete' && isset($_POST['deleteData']) && $id && $can_delete) {
+            $admin_id_session = $_SESSION['admin_id'] ?? null; // Passer l'ID admin pour la vérification
+            $result = deleteItem($conn, $config, $id, $admin_id_session);
         }
-    }
 
-    // --- Récupération des données pour affichage ---
-    try {
-        $sql = "SELECT * FROM `$table_name`";
-        if (!empty($config['list_condition'])) $sql .= " WHERE " . $config['list_condition'];
-        $sql .= " ORDER BY " . ($config['default_sort'] ?? "`$pk_name` DESC");
-        $stmt = $conn->prepare($sql); $stmt->execute();
-        $data_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    } catch (PDOException $e) {
-        $message = "Erreur récupération données: " . $e->getMessage(); $message_type = 'danger';
-        error_log("Erreur Fetch gestion_generique ($table_key): " . $e->getMessage());
+        // Mettre à jour le message et le type basé sur le résultat des fonctions CRUD
+        $message = $result['message'];
+        $message_type = $result['success'] ? 'success' : 'danger'; // Simplifié: succès ou danger
+        if (!$result['success'] && strpos($result['message'], 'Aucune modification') !== false) {
+            $message_type = 'info'; // Cas spécifique pour "aucune modification"
+        }
+         if (!$result['success'] && strpos($result['message'], 'Aucune donnée valide') !== false) {
+            $message_type = 'warning'; // Cas spécifique pour "aucune donnée"
+        }
+         if (!$result['success'] && strpos($result['message'], 'trouvé ou supprimé') !== false) {
+            $message_type = 'warning'; // Cas spécifique pour "non trouvé"
+        }
+
+
+    } // Fin du traitement POST
+
+    // --- Récupération des données pour affichage via la fonction CRUD ---
+    $fetchResult = fetchData($conn, $config);
+    if ($fetchResult['success']) {
+        $data_list = $fetchResult['data'];
+    } else {
+        // Si la récupération échoue après une action POST réussie, afficher quand même le message de succès
+        if (empty($message) || $message_type !== 'success') {
+             $message = $fetchResult['message'];
+             $message_type = 'danger';
+        }
         $data_list = [];
     }
 
 } else {
+    // Gérer le cas où la table n'est pas valide ou non spécifiée
     if ($table_key) $message = "Config '$table_key' non trouvée.";
     else $message = "Section non spécifiée.";
     $message_type = 'warning';
 }
 
 // --- Début du FRAGMENT HTML ---
-// Pas de <!DOCTYPE>, <html>, <head>, <body> ici !
 ?>
 
 <?php if ($config): ?>
-    <div class="gestion-section gestion-<?php echo htmlspecialchars($table_key); ?>"> {/* Ajout classe dynamique */}
+    <?php
+        // Définir une icône par défaut ou spécifique à la table (logique inchangée)
+        $section_icon = 'fa-table';
+        if ($table_key === 'apprenants') $section_icon = 'fa-users';
+        elseif ($table_key === 'formateurs') $section_icon = 'fa-chalkboard-teacher';
+        elseif ($table_key === 'cours') $section_icon = 'fa-book-open';
+        elseif ($table_key === 'lecons') $section_icon = 'fa-tasks';
+        elseif ($table_key === 'inscriptions') $section_icon = 'fa-user-check';
+        elseif ($table_key === 'messages_contact') $section_icon = 'fa-envelope-open-text';
+        elseif ($table_key === 'administrateurs') $section_icon = 'fa-user-cog';
+    ?>
+    <div class="gestion-section gestion-<?php echo htmlspecialchars($table_key); ?>">
 
-        <div class="d-flex justify-content-between align-items-center mb-3">
-             <h2 class="mb-0">Gestion des <?php echo htmlspecialchars($config['display_name']); ?></h2>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+             <h2 class="mb-0"><i class="fas <?php echo $section_icon; ?>"></i> Gestion des <?php echo htmlspecialchars($config['display_name']); ?></h2>
              <?php if ($can_add): ?>
-             <button class="btn btn-primary" onclick="toggleAddForm()"> {/* Appel fonction globale */}
-                 <i class="fas fa-plus me-1"></i> Ajouter
+             <button class="btn btn-primary" onclick="toggleAddForm()">
+                 <i class="fas fa-plus"></i> Ajouter
              </button>
              <?php endif; ?>
         </div>
@@ -273,15 +195,21 @@ if ($table_key && isset($config_tables[$table_key])) {
         <?php endif; ?>
 
         <?php if ($message): ?>
+            <?php
+                $alert_icon = 'fa-info-circle';
+                if ($message_type === 'success') $alert_icon = 'fa-check-circle';
+                elseif ($message_type === 'danger' || $message_type === 'error') $alert_icon = 'fa-exclamation-triangle';
+                elseif ($message_type === 'warning') $alert_icon = 'fa-exclamation-circle';
+            ?>
             <div class="alert alert-<?php echo htmlspecialchars($message_type); ?>" role="alert">
-                <?php echo $message; ?>
+                <i class="fas <?php echo $alert_icon; ?>"></i>
+                <div><?php echo $message; ?></div>
             </div>
         <?php endif; ?>
 
-        <!-- Formulaire d'Ajout -->
         <?php if ($can_add): ?>
-        <div id="addFormContainer" class="card card-body mb-4" style="display: none;">
-             <h4>Ajouter <?php echo htmlspecialchars($config['display_name']); ?></h4> <hr>
+        <div id="addFormContainer" class="card card-body mb-4 shadow-sm" style="display: none;">
+             <h4><i class="fas fa-plus-circle text-primary"></i> Ajouter <?php echo htmlspecialchars($config['display_name']); ?></h4> <hr class="my-3">
             <form action="gestion_generique.php?table=<?php echo htmlspecialchars($table_key); ?>" method="post" id="addForm">
                 <input type="hidden" name="action" value="add">
                 <div class="row g-3">
@@ -307,29 +235,30 @@ if ($table_key && isset($config_tables[$table_key])) {
                         </div>
                     <?php endforeach; ?>
                 </div>
-                <div class="mt-3">
+                <div class="mt-3 pt-3 border-top">
                     <button type="submit" name="addData" class="btn btn-success"><i class="fas fa-check me-1"></i> Ajouter</button>
-                    <button type="button" class="btn btn-secondary" onclick="toggleAddForm()">Annuler</button> {/* Appel fonction globale */}
+                    <button type="button" class="btn btn-secondary" onclick="toggleAddForm()"><i class="fas fa-times"></i> Annuler</button>
                 </div>
             </form>
         </div>
         <?php endif; ?>
 
-        <!-- Tableau des Données -->
-        <h4>Liste existante</h4>
-        <div class="table-responsive shadow-sm">
-            <table class="table table-striped table-hover table-bordered mt-2">
-                <thead class="table-light">
+        <h4 class="mb-3">Liste existante</h4>
+        <div class="table-responsive shadow-sm rounded">
+            <table class="table table-striped table-hover mt-0 mb-0">
+                <thead class="thead-light">
                     <tr>
                         <?php foreach ($columns_to_display as $col_name => $col_config): ?>
                             <th><?php echo htmlspecialchars($col_config['label']); ?></th>
                         <?php endforeach; ?>
-                        <th style="width: 100px;">Actions</th>
+                        <th class="text-center" style="width: 120px;">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (empty($data_list)): ?>
-                        <tr><td colspan="<?= count($columns_to_display) + 1 ?>" class="text-center text-muted py-4"><i class="fas fa-info-circle me-2"></i>Aucun enregistrement.</td></tr>
+                        <tr><td colspan="<?= count($columns_to_display) + 1 ?>" class="text-center text-muted py-5">
+                            <i class="fas fa-folder-open fa-2x mb-2 d-block"></i>Aucun enregistrement trouvé.
+                        </td></tr>
                     <?php else: ?>
                         <?php foreach ($data_list as $row): ?>
                             <tr>
@@ -347,12 +276,11 @@ if ($table_key && isset($config_tables[$table_key])) {
                                 <?php endforeach; ?>
                                 <td class='action-icons text-center'>
                                     <?php
-                                        // Préparer les données pour JS (exclure mdp)
                                         $edit_data = array_filter($row, fn($key) => $key !== 'mot_de_passe', ARRAY_FILTER_USE_KEY);
                                     ?>
-                                    <i class='fas fa-edit' title="Modifier" onclick='showEditModal(<?php echo json_encode($edit_data, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE); ?>, "<?php echo $pk_name; ?>")'></i> {/* Appel fonction globale + PK Name */}
+                                    <i class='fas fa-edit' title="Modifier" onclick='showEditModal(<?php echo json_encode($edit_data, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE); ?>, "<?php echo $pk_name; ?>")'></i>
                                     <?php if ($can_delete): ?>
-                                        <i class='fas fa-trash-alt' title="Supprimer" onclick='deleteItem(<?php echo json_encode($row[$pk_name]); ?>)'></i> {/* Appel fonction globale */}
+                                        <i class='fas fa-trash-alt' title="Supprimer" onclick='deleteItem(<?php echo json_encode($row[$pk_name]); ?>)'></i>
                                     <?php endif; ?>
                                 </td>
                             </tr>
@@ -362,18 +290,17 @@ if ($table_key && isset($config_tables[$table_key])) {
             </table>
         </div>
 
-        <!-- Modal pour la Modification (INCLUS DANS LE FRAGMENT) -->
         <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="editModalLabel">Modifier <?php echo htmlspecialchars($config['display_name']); ?></h5>
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content shadow-lg">
+                    <div class="modal-header bg-light">
+                        <h5 class="modal-title" id="editModalLabel"><i class="fas fa-edit text-primary"></i> Modifier <?php echo htmlspecialchars($config['display_name']); ?></h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <form id="editForm" action="gestion_generique.php?table=<?php echo htmlspecialchars($table_key); ?>" method="post">
                             <input type="hidden" name="action" value="edit">
-                            <input type="hidden" name="<?php echo $pk_name; ?>" id="edit_<?php echo $pk_name; ?>"> {/* ID dynamique basé sur PK */}
+                            <input type="hidden" name="<?php echo $pk_name; ?>" id="edit_<?php echo $pk_name; ?>">
 
                             <div class="row g-3">
                                 <?php foreach ($columns_for_form as $col_name => $col_config): ?>
@@ -401,8 +328,8 @@ if ($table_key && isset($config_tables[$table_key])) {
                                 <?php endforeach; ?>
                             </div>
                             <div class="modal-footer mt-3">
-                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-                                 <button type="submit" name="editData" class="btn btn-primary"><i class="fas fa-save me-1"></i> Enregistrer</button>
+                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times"></i> Annuler</button>
+                                 <button type="submit" name="editData" class="btn btn-primary"><i class="fas fa-save"></i> Enregistrer</button>
                             </div>
                         </form>
                     </div>
@@ -410,24 +337,21 @@ if ($table_key && isset($config_tables[$table_key])) {
             </div>
         </div>
 
-        <!-- Formulaire caché pour la suppression (INCLUS DANS LE FRAGMENT) -->
         <?php if ($can_delete): ?>
         <form id="deleteForm" action="gestion_generique.php?table=<?php echo htmlspecialchars($table_key); ?>" method="post" style="display: none;">
             <input type="hidden" name="action" value="delete">
-            <input type="hidden" name="<?php echo $pk_name; ?>" id="delete_id"> {/* ID dynamique basé sur PK */}
+            <input type="hidden" name="<?php echo $pk_name; ?>" id="delete_id">
             <input type="hidden" name="deleteData" value="1">
         </form>
         <?php endif; ?>
 
-    </div> {/* Fin .gestion-section */}
+    </div>
 
-<?php else: // Afficher message si config non valide ?>
+<?php else: ?>
      <div class="alert alert-<?php echo htmlspecialchars($message_type); ?>" role="alert">
-         <?php echo $message; ?>
+        <i class="fas <?php echo ($message_type === 'warning' || $message_type === 'danger' || $message_type === 'error') ? 'fa-exclamation-triangle' : 'fa-info-circle'; ?>"></i>
+        <div><?php echo $message; ?></div>
      </div>
 <?php endif; ?>
 
-<?php // --- Fin du FRAGMENT HTML ---
-// PAS de </body> ou </html> ici
-// PAS de <script> pour toggleAddForm, showEditModal, deleteItem ici
-?>
+<?php // --- Fin du FRAGMENT HTML --- ?>

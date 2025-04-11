@@ -18,6 +18,9 @@ function toggleAddForm() {
         if (isHidden) {
             const firstInput = addFormContainer.querySelector('input:not([type=hidden]), textarea, select');
             if(firstInput) firstInput.focus();
+            // Optionnel: Vider le formulaire quand on l'affiche
+            // const addForm = addFormContainer.querySelector('#addForm');
+            // if (addForm) addForm.reset();
         }
     } else {
          console.error("toggleAddForm: #addFormContainer non trouvé.");
@@ -56,7 +59,6 @@ function showEditModal(data, pkName) {
                 inputElement.value = ''; // Ne pas pré-remplir le mot de passe
             } else if (inputElement.tagName === 'SELECT') {
                 inputElement.value = data[key] ?? ''; // Assigner la valeur pour le select
-                // Vérifier si la valeur existe réellement dans les options
                 if (inputElement.value !== String(data[key]) && data[key] !== null) {
                      console.warn(`Valeur "${data[key]}" non trouvée pour select "${key}".`);
                 }
@@ -85,25 +87,72 @@ function showEditModal(data, pkName) {
 }
 
 /**
- * Demande confirmation et soumet le formulaire de suppression.
+ * Demande confirmation et effectue la suppression via AJAX/Fetch.
  * @param {number|string} id - L'ID de l'élément à supprimer.
  */
 function deleteItem(id) {
-    const deleteForm = contentArea.querySelector('#deleteForm');
-    const deleteIdInput = contentArea.querySelector('#delete_id');
+    const deleteForm = contentArea.querySelector('#deleteForm'); // Trouver le formulaire caché
+    if (!deleteForm) {
+        console.error("deleteItem: #deleteForm non trouvé.");
+        alert("Erreur : Impossible d'initier la suppression (formulaire manquant).");
+        return;
+    }
 
-    if (!deleteForm || !deleteIdInput) {
-         console.error("deleteItem: #deleteForm ou #delete_id non trouvé.");
-         alert("Erreur : Impossible d'initier la suppression.");
+    // Extraire la clé primaire et l'URL de l'action du formulaire caché
+    const pkNameInput = deleteForm.querySelector('input[id="delete_id"]');
+    if (!pkNameInput) {
+         console.error("deleteItem: Input #delete_id non trouvé.");
+         alert("Erreur : Impossible d'initier la suppression (champ ID manquant).");
          return;
+    }
+    const pkName = pkNameInput.name; // Récupère le nom de la clé primaire (ex: 'id')
+    const url = deleteForm.action; // Récupère l'URL (ex: gestion_generique.php?table=apprenants)
+
+    if (!url) {
+        console.error("deleteItem: Attribut 'action' manquant sur #deleteForm.");
+        alert("Erreur : Impossible d'initier la suppression (URL manquante).");
+        return;
     }
 
     if (confirm("Êtes-vous sûr de vouloir supprimer cet enregistrement ?\nCette action est irréversible.")) {
-        deleteIdInput.value = id;
-        // Soumettre le formulaire via JS. Le rechargement se fera par la réponse du serveur.
-        deleteForm.submit();
+        // Préparer les données à envoyer
+        const formData = new FormData();
+        formData.append('action', 'delete');
+        formData.append(pkName, id); // Utilise le nom de la PK récupéré
+        formData.append('deleteData', '1'); // Garder la logique du bouton caché
+
+        // Afficher un indicateur de chargement (optionnel, peut être sur la ligne du tableau)
+        contentArea.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner"></i> Suppression en cours...</div>`; // Simple remplacement
+
+        // Envoyer la requête Fetch
+        fetch(url, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                // Gérer les erreurs HTTP
+                return response.text().then(text => { throw new Error(`Erreur HTTP ${response.status}: ${response.statusText}. Réponse: ${text.substring(0, 200)}...`); });
+            }
+            return response.text(); // Récupérer le fragment HTML mis à jour
+        })
+        .then(data => {
+            // Remplacer le contenu avec la réponse du serveur (qui contient le message et la table mise à jour)
+            contentArea.innerHTML = data;
+            reinitializeBootstrapComponents(); // Réinitialiser les composants
+        })
+        .catch(error => {
+            console.error('Erreur Fetch (deleteItem):', error);
+            // Afficher l'erreur et recharger potentiellement le contenu précédent ?
+            // Pour la simplicité, on affiche juste l'erreur dans contentArea
+            contentArea.innerHTML = `<div class="alert alert-danger" role="alert"><strong>Erreur lors de la suppression :</strong> ${error.message}. Veuillez recharger la section.</div>`;
+            // On pourrait aussi essayer de recharger la table via loadContent ici
+            // const currentActiveLink = document.querySelector('.sidebar a.active');
+            // if (currentActiveLink) loadContent(currentActiveLink, null);
+        });
     }
 }
+
 
 // --- Fonctions AJAX et Initialisation ---
 
@@ -116,7 +165,6 @@ function setActiveLink(element) {
     if(element && element.hasAttribute('data-url')) {
         element.classList.add('active');
     } else {
-         // Fallback pour activer le lien du tableau de bord si aucun élément n'est fourni
          const overviewMenuLink = document.querySelector('.sidebar .menu a[data-url="admin_dashboard_overview.php"]');
          if (overviewMenuLink) overviewMenuLink.classList.add('active');
     }
@@ -133,6 +181,7 @@ function loadContent(element, event) {
     if (!url) { console.error("data-url manquant."); return; }
 
     setActiveLink(element);
+    // Afficher l'indicateur de chargement immédiatement
     contentArea.innerHTML = `<div class="loading-indicator"><i class="fas fa-spinner"></i> Chargement en cours...</div>`;
 
     fetch(url)
@@ -143,18 +192,35 @@ function loadContent(element, event) {
             return response.text();
         })
         .then(data => {
+            // Injecter le nouveau contenu
             contentArea.innerHTML = data;
-            reinitializeBootstrapComponents(); // Réinitialiser après injection
+
+            // --- AJOUT POUR ANIMATION ---
+            // Trouver le conteneur principal du contenu chargé
+            const mainContentDiv = contentArea.querySelector('.gestion-section');
+            if (mainContentDiv) {
+                // Forcer un reflow (peut être nécessaire pour que la transition fonctionne)
+                // void mainContentDiv.offsetWidth; // Décommenter si l'animation ne se déclenche pas
+
+                // Ajouter la classe 'is-visible' après un très court délai
+                // pour permettre au navigateur de "voir" l'état initial (opacity: 0)
+                setTimeout(() => {
+                    mainContentDiv.classList.add('is-visible');
+                }, 10); // 10 millisecondes suffisent généralement
+            }
+            // --- FIN AJOUT ANIMATION ---
+
+            reinitializeBootstrapComponents(); // Réinitialiser après injection ET ajout de classe
             window.scrollTo(0, 0);
         })
         .catch(error => {
             contentArea.innerHTML = `<div class="alert alert-danger" role="alert"><strong>Erreur chargement:</strong> ${error.message}. URL: <code>${url}</code>. Voir console.</div>`;
-            console.error('Erreur Fetch:', error);
+            console.error('Erreur Fetch (loadContent):', error);
         });
 }
 
 /**
- * Réinitialise les composants JS (Bootstrap, Chart.js) après un chargement AJAX.
+ * Réinitialise les composants JS (Bootstrap, Chart.js) et attache les gestionnaires AJAX aux formulaires.
  */
 function reinitializeBootstrapComponents() {
     // Réinitialiser la variable globale du modal d'édition
@@ -176,42 +242,103 @@ function reinitializeBootstrapComponents() {
          new bootstrap.Popover(el);
     });
 
-    // Chart.js (si présent dans le contenu chargé et si Chart est défini)
+    // Chart.js (si présent)
     const chartCanvas = contentArea.querySelector('#myAreaChart');
     if (chartCanvas && typeof Chart !== 'undefined') {
         const existingChart = Chart.getChart(chartCanvas);
         if (existingChart) existingChart.destroy();
         try {
-            // Recréer le graphique (la configuration doit être adaptée ou récupérée)
-            new Chart(chartCanvas, {
-                 type: 'line',
-                 data: {
-                     labels: ["Jan", "Fév", "Mar", "Avr", "Mai", "Juin"], // Exemple
-                     datasets: [{
-                         label: "Activité",
-                         data: [10, 20, 15, 25, 22, 30], // Exemple
-                         borderColor: 'rgb(75, 192, 192)',
-                         tension: 0.1
-                     }]
-                 },
-                 options: { responsive: true, maintainAspectRatio: false }
-             });
+            new Chart(chartCanvas, { /* ... config ... */ });
             console.log("Chart.js initialisé.");
         } catch (error) { console.error("Erreur init Chart.js:", error); }
-    } else if (chartCanvas) {
-         console.warn("Canvas #myAreaChart trouvé, mais Chart.js n'est pas chargé ou défini.");
     }
 
-    // Attacher l'écouteur pour le formulaire d'email (s'il existe)
+    // --- Attacher les gestionnaires AJAX aux formulaires ---
+
+    // Formulaire d'ajout générique
+    const addForm = contentArea.querySelector('#addForm');
+    if (addForm && addForm.getAttribute('data-ajax-submit') !== 'true') {
+        addForm.setAttribute('data-ajax-submit', 'true');
+        addForm.addEventListener('submit', handleGenericFormSubmit);
+    }
+
+    // Formulaire d'édition générique (dans le modal)
+    const editForm = contentArea.querySelector('#editForm');
+    if (editForm && editForm.getAttribute('data-ajax-submit') !== 'true') {
+        editForm.setAttribute('data-ajax-submit', 'true');
+        editForm.addEventListener('submit', handleGenericFormSubmit);
+    }
+
+    // Formulaire d'email (spécifique)
      const emailForm = contentArea.querySelector('#emailForm');
-     if (emailForm && emailForm.getAttribute('data-ajax-submit') !== 'true') { // Eviter double attachement
+     if (emailForm && emailForm.getAttribute('data-ajax-submit') !== 'true') {
          emailForm.setAttribute('data-ajax-submit', 'true');
-         emailForm.addEventListener('submit', handleEmailFormSubmit);
+         emailForm.addEventListener('submit', handleEmailFormSubmit); // Utilise sa propre fonction
      }
 }
 
 /**
- * Gère la soumission AJAX du formulaire d'email.
+ * Gère la soumission AJAX des formulaires génériques (Ajout/Modification).
+ * @param {Event} e - L'événement de soumission.
+ */
+function handleGenericFormSubmit(e) {
+    e.preventDefault(); // Empêche la soumission HTML standard
+    const form = e.target;
+    const url = form.action;
+    const formData = new FormData(form);
+    const submitButton = form.querySelector('button[type="submit"]');
+    const originalButtonHtml = submitButton ? submitButton.innerHTML : ''; // Sauvegarder le texte/icône du bouton
+
+    // Désactiver le bouton et afficher un indicateur
+    if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Enregistrement...';
+    }
+
+    // Fermer le modal si c'est le formulaire d'édition
+    if (form.id === 'editForm' && editModalInstance) {
+        editModalInstance.hide();
+    }
+
+    fetch(url, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.text().then(text => { throw new Error(`Erreur HTTP ${response.status}: ${response.statusText}. Réponse: ${text.substring(0, 500)}...`); });
+        }
+        return response.text(); // Récupérer le fragment HTML mis à jour
+    })
+    .then(data => {
+        // Remplacer le contenu avec la réponse du serveur
+        contentArea.innerHTML = data;
+        reinitializeBootstrapComponents(); // Réinitialiser les composants et réattacher les listeners
+        // Optionnel: Afficher un message de succès plus visible (ex: toast)
+        // showToast('Opération réussie !');
+    })
+    .catch(error => {
+        console.error('Erreur Fetch (handleGenericFormSubmit):', error);
+        // Afficher une alerte ou un message d'erreur plus persistant
+        alert(`Erreur lors de l'enregistrement : ${error.message}`);
+        // Réactiver le bouton
+        if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.innerHTML = originalButtonHtml;
+        }
+        // Optionnel: Réouvrir le modal si l'erreur vient du formulaire d'édition
+        // if (form.id === 'editForm' && editModalInstance) {
+        //     editModalInstance.show();
+        // }
+        // On pourrait aussi recharger la section pour afficher l'erreur renvoyée par PHP
+        // const currentActiveLink = document.querySelector('.sidebar a.active');
+        // if (currentActiveLink) loadContent(currentActiveLink, null);
+    });
+}
+
+
+/**
+ * Gère la soumission AJAX du formulaire d'email (fonction existante).
  * @param {Event} e - L'événement de soumission.
  */
 function handleEmailFormSubmit(e) {
@@ -248,19 +375,16 @@ function handleEmailFormSubmit(e) {
 
 // --- Chargement Initial ---
 document.addEventListener('DOMContentLoaded', () => {
-    // Vérifier si contentArea existe avant de continuer
     if (!contentArea) {
-        console.error("Erreur critique: L'élément #content-area n'a pas été trouvé dans le DOM.");
+        console.error("Erreur critique: #content-area non trouvé.");
         return;
     }
-
     const overviewUrl = 'admin_dashboard_overview.php';
     const overviewLinkElement = document.querySelector(`.sidebar .menu a[data-url="${overviewUrl}"]`);
     if (overviewLinkElement) {
         loadContent(overviewLinkElement, null);
     } else {
-        console.warn(`Lien menu pour '${overviewUrl}' non trouvé. Tentative de chargement direct.`);
-        // Créer un élément temporaire pour passer à loadContent
+        console.warn(`Lien menu pour '${overviewUrl}' non trouvé.`);
         const tempElement = document.createElement('a');
         tempElement.setAttribute('data-url', overviewUrl);
         loadContent(tempElement, null);
