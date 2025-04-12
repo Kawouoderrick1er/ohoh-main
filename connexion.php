@@ -1,17 +1,15 @@
-<?php // c:\xampp\htdocs\ohoh\connexion.php
-session_start(); // Démarrer la session pour stocker les infos utilisateur
+<?php // c:\xampp\htdocs\ohoh-main\connexion.php (MODIFIED)
+session_start();
 
-// Si l'utilisateur est déjà connecté, rediriger vers le profil ou l'accueil
 if (isset($_SESSION['user_id'])) {
-    header("Location: profile.php"); // Ou navbar.php
+    header("Location: profile.php");
     exit();
 }
 
-// Inclure la configuration de la base de données ou la connexion directe
-require_once 'base.php'; // Assurez-vous que ce fichier contient la connexion PDO $conn
+require_once 'base.php';
 
 $message = '';
-$message_type = 'danger'; // Par défaut 'danger' pour les erreurs
+$message_type = 'danger';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = trim($_POST['email'] ?? '');
@@ -23,78 +21,53 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $message = "L'adresse email n'est pas valide.";
     } else {
         try {
-            // Rechercher l'utilisateur par email
-            $sql = "SELECT id, nom, email, mot_de_passe, type_utilisateur FROM utilisateurs WHERE email = :email";
+            // Inclure profile_image_path dans la sélection
+            $sql = "SELECT id, nom, email, mot_de_passe, type_utilisateur, profile_image_path
+                    FROM utilisateurs WHERE email = :email";
             $stmt = $conn->prepare($sql);
             $stmt->bindParam(':email', $email);
             $stmt->execute();
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            // Vérifier si l'utilisateur existe et si le mot de passe est correct
             if ($user && password_verify($password, $user['mot_de_passe'])) {
-                // Mot de passe correct : Démarrer la session
+                // Stocker les informations en session
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['user_name'] = $user['nom'];
-                $_SESSION['user_type'] = $user['type_utilisateur']; // 'etudiant', 'formateur', 'administrateur'
+                $_SESSION['user_type'] = $user['type_utilisateur'];
+                $_SESSION['user_email'] = $user['email']; // Utile pour pré-remplir
+                $_SESSION['profile_image_path'] = $user['profile_image_path']; // << AJOUTÉ
 
-                // Rediriger en fonction du type d'utilisateur
                 if ($user['type_utilisateur'] == 'administrateur') {
-                    // Stocker l'ID admin spécifiquement si nécessaire pour le dashboard
                     $_SESSION['admin_id'] = $user['id'];
                     $_SESSION['admin_name'] = $user['nom'];
                     header("Location: admin_dashboard.php");
                 } else {
-                    // Pour étudiants et formateurs, rediriger vers le profil
-                    header("Location: profile.php");
+                    header("Location: profile.php"); // Rediriger vers le profil
                 }
-                exit(); // Important après une redirection
+                exit();
 
             } else {
-                // Utilisateur non trouvé ou mot de passe incorrect
                 $message = "Email ou mot de passe incorrect.";
             }
         } catch (PDOException $e) {
-            // En production, logguer l'erreur détaillée
             error_log("Erreur de connexion: " . $e->getMessage());
             $message = "Erreur technique lors de la connexion. Veuillez réessayer plus tard.";
         }
     }
 }
 
-include 'navigation.php'; // Inclure la barre de navigation
+include 'navigation.php';
 ?>
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connexion - D-X-T</title>
-     <!-- <style>
-        .form-container {
-            max-width: 500px;
-            margin: 3rem auto;
-            padding: 2rem;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        }
-        .form-container h2 {
-            text-align: center;
-            color: #343a40;
-            margin-bottom: 1.5rem;
-        }
-        .form-label .text-danger { font-size: 0.9em; margin-left: 2px; }
-
-        /* Styles pour les animations JS */
-        .fade-in { opacity: 0; }
-        .animate-on-scroll { opacity: 0; transform: translateY(30px); transition: opacity 0.8s ease-out, transform 0.8s ease-out; }
-        .animate-on-scroll.is-visible { opacity: 1; transform: translateY(0); }
-        .form-group-animate { opacity: 0; transform: translateY(20px); }
-    </style> -->
 </head>
 
 <main class="container mt-5 mb-5">
-    <div class="form-container fade-in">
-        <h2>Connexion</h2>
+    <div class="form-container fade-in" style="max-width: 500px; margin: 3rem auto; padding: 2rem; background-color: #fff; border-radius: 8px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);">
+        <h2 class="text-center mb-4">Connexion</h2>
 
         <?php if (!empty($message)): ?>
             <div class="alert alert-<?php echo $message_type; ?>" role="alert">
@@ -128,4 +101,4 @@ include 'navigation.php'; // Inclure la barre de navigation
     </div>
 </main>
 
-<?php include 'foote.php'; // Inclure le pied de page ?>
+<?php include 'foote.php'; ?>

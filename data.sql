@@ -152,3 +152,24 @@ ADD COLUMN `access_code_envoye` VARCHAR(50) NULL DEFAULT NULL AFTER `numero_tele
 ALTER TABLE `inscriptions`
 MODIFY COLUMN `date_inscription` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;
 
+-- Pour utilisateurs (utilisé dans plusieurs gestions)
+ALTER TABLE utilisateurs ADD INDEX idx_type_utilisateur (type_utilisateur);
+ALTER TABLE utilisateurs ADD INDEX idx_email (email); -- Probablement déjà unique, mais un index aide
+ALTER TABLE utilisateurs ADD INDEX idx_date_inscription (date_inscription);
+
+-- Pour cours (formations)
+ALTER TABLE cours ADD INDEX idx_statut (statut);
+ALTER TABLE cours ADD INDEX idx_formateur_id (formateur_id);
+ALTER TABLE cours ADD INDEX idx_date_creation (date_creation);
+
+-- Pour messages_contact
+ALTER TABLE messages_contact ADD INDEX idx_statut (statut);
+ALTER TABLE messages_contact ADD INDEX idx_date_reception (date_reception);
+
+-- Pour inscriptions
+ALTER TABLE inscriptions ADD INDEX idx_utilisateur_id (utilisateur_id);
+ALTER TABLE inscriptions ADD INDEX idx_cours_id (cours_id);
+ALTER TABLE inscriptions ADD INDEX idx_date_inscription (date_inscription);
+
+ALTER TABLE utilisateurs
+ADD COLUMN profile_image_path VARCHAR(255) NULL DEFAULT NULL COMMENT 'Chemin vers l image de profil' AFTER adresse;

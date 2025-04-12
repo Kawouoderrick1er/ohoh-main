@@ -68,7 +68,10 @@ function fetchData(PDO $conn, array $config): array {
  * @param PDO $conn La connexion à la base de données.
  * @param array $config La configuration de la table.
  * @param array $postData Les données du formulaire.
- * @return array ['success' => bool, 'message' => string]
+ * * @return array ['success' => bool, 'message' => string]
+ */ // <-- Ajoutez ceci
+/**
+
  */
 function addItem(PDO $conn, array $config, array $postData): array {
     $table_name = $config['table_name'];
